@@ -1,3 +1,10 @@
+/**
+Code is separated into 3 main components, in accordance with the
+Model-View-ViewModel. The locations are stored in the Model components
+of the code and the code in the ViewModel mediates between the view (index.html)
+and the data in the Model.
+*/
+
 var funLocations = [
   {name: "Changi Airport", coordinates: {lat: 1.3644, lng: 103.9915}},
   {name: "Chinese Garden", coordinates: {lat: 1.3390, lng: 103.7298}},
@@ -21,15 +28,13 @@ var ViewModel = function(){
   filterBoxValue = ko.observable("");
   markers = ko.observableArray(markers);
 
-  this.testingtwo = function () {
+  // This function calls the function to update the markers in accordance to
+  // what the user had typed in the search box
+  this.update = function () {
     updateMarkers();
-  }
+  };
 
-  changenumber = function(){
-    testarray.push("10");
-    console.log(testarray());
-  }
-
+  // Event handler to handle the response after a request is sent to Google API
   this.initMap = function() {
       // Constructor creates a new map - only center and zoom are required.
       map = new google.maps.Map(document.getElementById('map'),{
@@ -40,6 +45,8 @@ var ViewModel = function(){
       displayAllMarkers();
     };
 
+    // This function ensures that the correct markers are displayed only to the
+    // user after a search criteria is entered.
     function updateMarkers(){
       var defaultIcon = makeMarkerIcon('0091ff');
       var highlightedIcon = makeMarkerIcon('FFFF24');
@@ -65,17 +72,22 @@ var ViewModel = function(){
           marker.addListener('click', function(){
             populateInfoWindow(this, largeInfowindow);
           });
+          // This creates the event listener whereby when the icon is clicked,
+          // the icon will turn to yellow.
           marker.addListener('click', function() {
             this.setIcon(highlightedIcon);
           });
+          // This creates the event listener whereby when the mouse moves out of
+          // the icon, it will turn back to its original colour.
           marker.addListener('mouseout', function() {
             this.setIcon(defaultIcon);
           });
           showListings();
-        }
-      }
-    }
+        };
+      };
+    };
 
+    // This function displays all the markers of the model locations.
     function displayAllMarkers(){
       var defaultIcon = makeMarkerIcon('0091ff');
       var highlightedIcon = makeMarkerIcon('FFFF24');
@@ -120,7 +132,8 @@ var ViewModel = function(){
       var zoom = map.getZoom();
       map.setZoom(12);
     };
-
+    //This function allows all markers to be removed before the updated ones
+    // are
     function hideMarkers(markers) {
       for (var i = 0; i < markers().length; i++) {
         markers()[i].setMap(null);
@@ -150,7 +163,7 @@ var ViewModel = function(){
           infowindow.marker = null;
         });
         var streetViewService = new google.maps.StreetViewService();
-        var radius = 50;
+        var radius = 30;
         // In case the status is OK, which means the pano was found, compute the
         // position of the streetview image, then calculate the heading, then get a
         // panorama from that and set the options
@@ -166,23 +179,25 @@ var ViewModel = function(){
                   heading: heading,
                   pitch: 30
                 }
-              };
+              }
             var panorama = new google.maps.StreetViewPanorama(
               document.getElementById('pano'), panoramaOptions);
           } else {
             infowindow.setContent('<div>' + marker.title + '</div>' +
               '<div>No Street View Found</div>');
-          }
-        }
+          };
+        };
         // Use streetview service to get the closest streetview image within
         // 50 meters of the markers position
         streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
         // Open the infowindow on the correct marker.
         infowindow.open(map, marker);
-      }
+      };
     };
 };
 
+// In the event that the code fails to execute properly, a pop out window
+// will be displayed and the user will be notified.
 window.onerror = function (msg, url, lineNo, columnNo, error) {
     var string = msg.toLowerCase();
     var substring = "script error";
@@ -198,7 +213,7 @@ window.onerror = function (msg, url, lineNo, columnNo, error) {
         ].join(' - ');
 
         alert(message);
-    }
+    };
 
     return false;
 };

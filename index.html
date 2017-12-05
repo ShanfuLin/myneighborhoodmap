@@ -2,33 +2,33 @@
 
 <html lang="en">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Neighborhood Map</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
-<body>
   <body>
-    <div class="container">
-      <div class="options-box">
-        <h1 id=topheader>Singapore - My Country, Neighborhood and Home</h1>
-        <hr>
-          <span id="searchbox"> Find your favorite locations here</span>
-          <input type="text" id="filterbox" data-bind='value: filterBoxValue, valueUpdate: "afterkeydown"' /><br>
-          <button type="button" data-bind="click: testingtwo">Search</button>
-        <hr>
-        <ul id='locations-title-container' data-bind='foreach: markers()'>
-            <li>
-              <span data-bind="text: title"></span>
-            </li>
-        </ul>
+    <body>
+      <div class="container">
+          <div class="options-box">
+            <h1 id=topheader>Singapore - My Country, Neighborhood and Home</h1>
+            <hr>
+              <span id="searchbox"> Find your favorite locations here</span>
+              <input type="text" id="filterbox" data-bind='value: filterBoxValue, valueUpdate: "afterkeydown"' /><br>
+              <button type="button" data-bind="click: update">Search</button>
+            <hr>
+            <ul id='locations-title-container' data-bind='foreach: markers()'>
+                <li>
+                  <span data-bind="text: title"></span>
+                </li>
+            </ul>
+          </div>
+        <div id="map"></div>
       </div>
-      <div id="map"></div>
-    </div>
-    <script src="js/lib/knockout-3.2.0.js"></script>
-    <script async defer
-         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAYaqzhSGF4Zff--iCm-M0zYwHiknNf5Ok&v=3&callback=viewModel.initMap">
-    </script>
-    <script src="js/app.js"></script>
-</body>
+      <script src="js/lib/knockout-3.2.0.js"></script>
+      <script async defer
+           src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAYaqzhSGF4Zff--iCm-M0zYwHiknNf5Ok&v=3&callback=viewModel.initMap">
+      </script>
+      <script src="js/app.js"></script>
+  </body>
 </html>
