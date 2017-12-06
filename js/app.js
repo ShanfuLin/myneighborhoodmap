@@ -97,6 +97,7 @@ var ViewModel = function(){
       };
     };
 
+    // This function links the locations in the filter list to the markers on map.
     function linkListToMarkers(){
       try {
         for (var i = 0; i < markers().length; i++) {
@@ -199,6 +200,8 @@ var ViewModel = function(){
       }
     };
 
+    // This function populates the infowindow with the wikipedia link for
+    // each location. 
     function populateInfoWindow(marker, infowindow) {
       try {
         var wikiUrl = 'http://en.wikipedia.org/w/api.php?action=opensearch&search=' + marker.title + '&format=json&callback=wikiCallback';
