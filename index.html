@@ -20,7 +20,8 @@
             <hr>
             <ul id='locations-title-container' data-bind='foreach: markers()'>
                 <li>
-                  <span data-bind="text: title, attr: {'id': 'marker' + $index()}"></span>
+                  <span data-bind="text: $data.title, attr: {'id': 'marker' + $index()}"></span>
+                  <button data-bind="click: $root.highlightonmap">Highlight on Map</button>
                 </li>
             </ul>
           </div>

@@ -7,7 +7,7 @@ and the data in the Model.
 
 var funLocations = [
   {name: "Changi Airport", coordinates: {lat: 1.3644, lng: 103.9915}},
-  {name: "Singapore Botanic Gardens", coordinates: {lat: 1.3390, lng: 103.7298}},
+  {name: "Chinese Garden", coordinates: {lat: 1.3390, lng: 103.7298}},
   {name: "East Coast Park", coordinates: {lat: 1.3008, lng: 103.9122}},
   {name: "Jurong Bird Park", coordinates: {lat: 1.3187, lng: 103.7064}},
   {name: "MacRitchie Reservoir", coordinates: {lat: 1.3448, lng: 103.8224}},
@@ -21,6 +21,9 @@ var map;
 var markers = [];
 var testlocations = [];
 var elem;
+var switchindicatorcontainer = [];
+var switchindicator = false;
+var infoWindowClone;
 
 var ViewModel = function(){
 
@@ -35,32 +38,49 @@ var ViewModel = function(){
     updateMarkers();
   };
 
-  this.testing = function () {
-    console.log("try again");
-  }
+  this.highlightonmap = function (marker) {
+    var defaultIcon = makeMarkerIcon('0091ff');
+    var highlightedIcon = makeMarkerIcon('FFFF24');
+    var largeInfowindow = new google.maps.InfoWindow();
+    if (switchindicatorcontainer[marker.id] === "") {
+      infoWindowClone = largeInfowindow;
+      marker.setIcon(highlightedIcon);
+      populateInfoWindow(marker, infoWindowClone);
+      switchindicator = true;
+      switchindicatorcontainer.splice(marker.id, 1, switchindicator)
+    } else {
+      infoWindowClone.close();
+      marker.setIcon(defaultIcon);
+      switchindicator = "";
+      switchindicatorcontainer.splice(marker.id, 1, switchindicator)
+    }
+    console.log(switchindicatorcontainer);
+  };
 
   // Event handler to handle the response after a request is sent to Google API
   this.initMap = function() {
-      // Constructor creates a new map - only center and zoom are required.
-      map = new google.maps.Map(document.getElementById('map'),{
-        center: {lat: 1.3521, lng: 103.8198},
-        zoom:11
-      });
-      var largeInfowindow = new google.maps.InfoWindow();
-      displayAllMarkers();
+    map = new google.maps.Map(document.getElementById('map'),{
+      center: {lat: 1.3521, lng: 103.8198},
+      zoom:11
+    });
+    var largeInfowindow = new google.maps.InfoWindow();
+    displayAllMarkers();
+    for (var i = 0; i < markers().length; i++){
+      switchindicatorcontainer.push("");
     };
+  };
 
     // This function ensures that the correct markers are displayed only to the
     // user after a search criteria is entered.
     function updateMarkers(){
       try {
+        switchindicatorcontainer = [];
         var defaultIcon = makeMarkerIcon('0091ff');
         var highlightedIcon = makeMarkerIcon('FFFF24');
         var largeInfowindow = new google.maps.InfoWindow();
         hideMarkers(markers);
         var value = filterBoxValue().toLowerCase();
         markers().splice(0, markers().length);
-        console.log(markers());
         for (var i = 0; i < funLocations.length; i++) {
           if (funLocations[i].name.toLowerCase().search(value) !== parseInt("-1")) {
             var position = funLocations[i].coordinates;
@@ -91,37 +111,16 @@ var ViewModel = function(){
             showListings();
           };
         };
-        linkListToMarkers();
+        for (var i = 0; i < markers().length; i++){
+          switchindicatorcontainer.push("");
+        };
       } catch(err) {
         window.alert("An error has occured. Please inform the owner of this website.");
       };
     };
 
     // This function links the locations in the filter list to the markers on map.
-    function linkListToMarkers(){
-      try {
-        for (var i = 0; i < markers().length; i++) {
-          elem = document.getElementById('marker' + i);
-          var defaultIcon = makeMarkerIcon('0091ff');
-          var highlightedIcon = makeMarkerIcon('FFFF24');
-          var largeInfowindow = new google.maps.InfoWindow();
-          elem.addEventListener("click", (function(icopy) {
-            return function(){
-              markers()[icopy].setIcon(highlightedIcon);
-              populateInfoWindow(markers()[icopy], largeInfowindow)
-            };
-          }(i)));
-          elem.addEventListener("mouseleave", (function(icopy) {
-            return function(){
-              markers()[icopy].setIcon(defaultIcon);
-              largeInfowindow.close();
-            };
-          }(i)));
-        };
-      } catch(err) {
-        window.alert("An error has occured. Please inform the owner of this website.");
-      };
-    }
+
 
     // This function displays all the markers of the model locations.
     function displayAllMarkers(){
@@ -156,7 +155,6 @@ var ViewModel = function(){
           });
         };
         showListings();
-        linkListToMarkers();
       } catch(err) {
         window.alert("An error has occured. Please inform the owner of this website.");
       };
@@ -164,8 +162,6 @@ var ViewModel = function(){
 
     function showListings() {
       var bounds = new google.maps.LatLngBounds();
-      console.log(markers());
-      console.log("running");
        // Extend the boundaries of the map for each marker and display the marker
       for (var i = 0; i < markers().length; i++) {
         markers()[i].setMap(map);
@@ -201,9 +197,9 @@ var ViewModel = function(){
     };
 
     // This function populates the infowindow with the wikipedia link for
-    // each location. 
+    // each location.
     function populateInfoWindow(marker, infowindow) {
-      try {
+    //  try {
         var wikiUrl = 'http://en.wikipedia.org/w/api.php?action=opensearch&search=' + marker.title + '&format=json&callback=wikiCallback';
         $.ajax({
             url: wikiUrl,
@@ -211,7 +207,6 @@ var ViewModel = function(){
             jsonp: "callback",
             success: function( response ) {
                 var articleList = response[3];
-                console.log(articleList)
                 if (infowindow.marker != marker) {
                   // Clear the infowindow content to give the streetview time to load.
                   infowindow.setContent('');
@@ -223,11 +218,30 @@ var ViewModel = function(){
                   infowindow.setContent('<div>' + marker.title + '</div><br><div><a href='+ articleList[0] + '>' + "Click Here to Find out More!!!" + '</a></div>');
                   infowindow.open(map, marker);
                 };
-            }
+            },
+            error: function (jqXHR, error) {
+                    var msg = '';
+                    if (jqXHR.status === 0) {
+                        msg = 'Not connect.\n Verify Network.';
+                    } else if (jqXHR.status == 404) {
+                        msg = 'Requested page not found. [404]';
+                    } else if (jqXHR.status == 500) {
+                        msg = 'Internal Server Error [500].';
+                    } else if (exception === 'parsererror') {
+                        msg = 'Requested JSON parse failed.';
+                    } else if (exception === 'timeout') {
+                        msg = 'Time out error.';
+                    } else if (exception === 'abort') {
+                        msg = 'Ajax request aborted.';
+                    } else {
+                        msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                    }
+                    window.alert(msg);
+                },
         });
-      } catch(err) {
-        window.alert("An error has occured. Please inform the owner of this website.");
-      }
+    //  } catch(err) {
+      //  window.alert("An error has occured. Please inform the owner of this website.");
+    //  }
     };
 };
 
