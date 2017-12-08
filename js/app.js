@@ -1,3 +1,4 @@
+
 /**
 Code is separated into 3 main components, in accordance with the
 Model-View-ViewModel. The locations are stored in the Model components
@@ -21,9 +22,11 @@ var map;
 var markers = [];
 var testlocations = [];
 var elem;
-var switchindicatorcontainer = [];
 var switchindicator = false;
 var infoWindowClone;
+var xprevious = "";
+var markerclicker = "";
+var z = "";
 
 var ViewModel = function(){
 
@@ -39,22 +42,59 @@ var ViewModel = function(){
   };
 
   this.highlightonmap = function (marker) {
+    console.log(z);
+    if (z != ""){
+      z.close();
+    }
     var defaultIcon = makeMarkerIcon('0091ff');
     var highlightedIcon = makeMarkerIcon('FFFF24');
     var largeInfowindow = new google.maps.InfoWindow();
-    if (switchindicatorcontainer[marker.id] === "") {
-      infoWindowClone = largeInfowindow;
-      marker.setIcon(highlightedIcon);
-      populateInfoWindow(marker, infoWindowClone);
-      switchindicator = true;
-      switchindicatorcontainer.splice(marker.id, 1, switchindicator)
+      //if marker length = funlocation length
+    if (infoWindowClone !== undefined) {
+      if (infoWindowClone["marker"]["id"] !== marker["id"]){
+        var number = xprevious;
+        infoWindowClone.close();
+        // problem is id number not equal to position in markers()
+        if (idPositionChecker() !== -1 | undefined){
+          markers()[idPositionChecker()].setIcon(defaultIcon);
+        }
+        infoWindowClone = largeInfowindow;
+        marker.setIcon(highlightedIcon);
+        populateInfoWindow(marker, infoWindowClone);
+        switchindicator = true;
+        console.log("logic1");
+        xprevious = marker["id"];
+      } else {
+        if (switchindicator === true) {
+          console.log(infoWindowClone);
+          infoWindowClone.close();
+          console.log(infoWindowClone);
+          marker.setIcon(defaultIcon);
+          switchindicator = false;
+          console.log("logic2");
+          xprevious = marker["id"];
+        } else {
+          infoWindowClone = largeInfowindow;
+          marker.setIcon(highlightedIcon);
+          populateInfoWindow(marker, infoWindowClone);
+          switchindicator = true;
+          console.log("logic3");
+          xprevious = marker["id"];
+        }
+      };
     } else {
-      infoWindowClone.close();
-      marker.setIcon(defaultIcon);
-      switchindicator = "";
-      switchindicatorcontainer.splice(marker.id, 1, switchindicator)
+      if (switchindicator === false) {
+        infoWindowClone = largeInfowindow;
+        marker.setIcon(highlightedIcon);
+        populateInfoWindow(marker, infoWindowClone);
+        switchindicator = true;
+        console.log("here");
+        console.log(marker["id"]);
+        xprevious = marker["id"];
+        console.log("logic4");
+        //positionLocator(infoWindowClone);
+      }
     }
-    console.log(switchindicatorcontainer);
   };
 
   // Event handler to handle the response after a request is sent to Google API
@@ -65,9 +105,6 @@ var ViewModel = function(){
     });
     var largeInfowindow = new google.maps.InfoWindow();
     displayAllMarkers();
-    for (var i = 0; i < markers().length; i++){
-      switchindicatorcontainer.push("");
-    };
   };
 
     // This function ensures that the correct markers are displayed only to the
@@ -96,24 +133,33 @@ var ViewModel = function(){
              // This creates the infowindow which information pertaining to the said
              // location were displayed.
             marker.addListener('click', function(){
-              populateInfoWindow(this, largeInfowindow);
+              if (infoWindowClone != undefined) {
+                infoWindowClone.close();
+                populateInfoWindow(this, largeInfowindow);
+                z = largeInfowindow;
+                console.log(z);
+              } else {
+                populateInfoWindow(this, largeInfowindow);
+                z = largeInfowindow;
+                console.log(z);
+              }
             });
             // This creates the event listener whereby when the icon is clicked,
             // the icon will turn to yellow.
             marker.addListener('click', function() {
               this.setIcon(highlightedIcon);
+              populateInfoWindow(this, largeInfowindow);
             });
             // This creates the event listener whereby when the mouse moves out of
             // the icon, it will turn back to its original colour.
             marker.addListener('mouseout', function() {
               this.setIcon(defaultIcon);
             });
-            showListings();
           };
         };
-        for (var i = 0; i < markers().length; i++){
-          switchindicatorcontainer.push("");
-        };
+        showListings();
+        console.log(markers());
+        switchindicator = false;
       } catch(err) {
         window.alert("An error has occured. Please inform the owner of this website.");
       };
@@ -143,18 +189,30 @@ var ViewModel = function(){
            // location were displayed.
 
           marker.addListener('click', function(){
-            populateInfoWindow(this, largeInfowindow);
+            if (infoWindowClone != undefined) {
+              infoWindowClone.close();
+              populateInfoWindow(this, largeInfowindow);
+              z = largeInfowindow;
+              console.log(z);
+            } else {
+              populateInfoWindow(this, largeInfowindow);
+              z = largeInfowindow;
+              console.log(z);
+            }
           });
 
           marker.addListener('click', function() {
             this.setIcon(highlightedIcon);
+            populateInfoWindow(this, largeInfowindow);
           });
-
+          // This creates the event listener whereby when the mouse moves out of
+          // the icon, it will turn back to its original colour.
           marker.addListener('mouseout', function() {
             this.setIcon(defaultIcon);
           });
         };
         showListings();
+        switchindicator = false;
       } catch(err) {
         window.alert("An error has occured. Please inform the owner of this website.");
       };
@@ -181,6 +239,17 @@ var ViewModel = function(){
       };
     };
 
+    function positionLocator(thing) {
+      /*var position = ""
+      for (var i = 0; i < markers().length; i++){
+        console.log(markers()[i]["id"]);
+        console.log(thing["anchor"]["id"]);
+        if (markers()[i]["id"] == thing["marker"]["icon"]["id"]) {
+          position = i;
+        }*/
+      return position;
+    }
+
     function makeMarkerIcon(markerColor) {
       try {
         var markerImage = new google.maps.MarkerImage(
@@ -195,6 +264,29 @@ var ViewModel = function(){
         window.alert("An error has occured. Please inform the owner of this website.");
       }
     };
+
+    function errorChecker() {
+      var container = []
+      for (var i = 0; i < markers().length; i++) {
+        container.push(markers()[i]["id"])
+      };
+      return container;
+    };
+
+    function idPositionChecker(){
+      for (var i = 0; i < markers().length; i++) {
+        var x = markers()[i]["id"];
+        console.log("below here number 2")
+        console.log(x);
+        console.log(xprevious);
+        if (xprevious === x) {
+          var y = i;
+          break;
+        } else {
+          y = -1;
+        }
+      } return y;
+    }
 
     // This function populates the infowindow with the wikipedia link for
     // each location.
@@ -242,6 +334,10 @@ var ViewModel = function(){
     //  } catch(err) {
       //  window.alert("An error has occured. Please inform the owner of this website.");
     //  }
+    };
+
+    mapError = () => {
+      console.log("testing");
     };
 };
 
