@@ -14,13 +14,12 @@
           <img src="http://www.changiairport.com/content/dam/cag/5-airport-experience/3-services-facilities/free_singapore_tour_900.jpg" alt="Smiley face" height="200" width="300">
           <hr>
             <span id="searchbox"> Find your favorite locations here</span>
-            <input type="text" id="filterbox" data-bind='value: filterBoxValue, valueUpdate: "afterkeydown"' /><br>
-            <button type="button" data-bind="click: update">Search</button>
+            <input type="text" id="filterbox" data-bind='value: filterBoxValue, valueUpdate: "afterkeydown", event: { keyup: update }' /><br>
           <hr>
           <ul id='locations-title-container' data-bind='foreach: markers()'>
               <li>
                 <span data-bind="text: $data.title, attr: {'id': 'marker' + $index()}"></span>
-                <button data-bind="event: { mouseout: $root.mouseOutList }, click: $root.highlightonmap">Highlight on Map</button>
+                <button data-bind="event: { mouseout: $root.mouseOutList }, click: $root.highlightonmap">Show on Map</button>
               </li>
           </ul>
         </div>
