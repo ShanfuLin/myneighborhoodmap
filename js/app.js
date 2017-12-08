@@ -41,8 +41,9 @@ var ViewModel = function(){
     updateMarkers();
   };
 
+  // This function calls the function to highlight the markers in accordance to
+  // what the user had selected in the list
   this.highlightonmap = function (marker) {
-    console.log(z);
     if (z != ""){
       z.close();
     }
@@ -62,40 +63,49 @@ var ViewModel = function(){
         marker.setIcon(highlightedIcon);
         populateInfoWindow(marker, infoWindowClone);
         switchindicator = true;
-        console.log("logic1");
         xprevious = marker["id"];
       } else {
         if (switchindicator === true) {
-          console.log(infoWindowClone);
           infoWindowClone.close();
-          console.log(infoWindowClone);
           marker.setIcon(defaultIcon);
           switchindicator = false;
-          console.log("logic2");
           xprevious = marker["id"];
         } else {
           infoWindowClone = largeInfowindow;
           marker.setIcon(highlightedIcon);
           populateInfoWindow(marker, infoWindowClone);
           switchindicator = true;
-          console.log("logic3");
           xprevious = marker["id"];
         }
       };
+    } if (infoWindowClone == undefined) {
+        infoWindowClone = largeInfowindow;
+        marker.setIcon(highlightedIcon);
+        populateInfoWindow(marker, infoWindowClone);
+        switchindicator = true;
+        xprevious = marker["id"];
     } else {
       if (switchindicator === false) {
         infoWindowClone = largeInfowindow;
         marker.setIcon(highlightedIcon);
         populateInfoWindow(marker, infoWindowClone);
         switchindicator = true;
-        console.log("here");
-        console.log(marker["id"]);
         xprevious = marker["id"];
-        console.log("logic4");
         //positionLocator(infoWindowClone);
       }
     }
   };
+
+  // This function ensures that the marker (and infowindow) is always closed
+  // automatically when the mouse moves out of the target in list
+  this.mouseOutList = function(marker) {
+    if (infoWindowClone != undefined) {
+      var defaultIcon = makeMarkerIcon('0091ff');
+      var highlightedIcon = makeMarkerIcon('FFFF24');
+      infoWindowClone.close();
+      marker.setIcon(defaultIcon);
+    }
+  }
 
   // Event handler to handle the response after a request is sent to Google API
   this.initMap = function() {
@@ -133,32 +143,34 @@ var ViewModel = function(){
              // This creates the infowindow which information pertaining to the said
              // location were displayed.
             marker.addListener('click', function(){
+              if (xprevious != ""){
+                markers()[idPositionChecker()].setIcon(defaultIcon);
+              }
               if (infoWindowClone != undefined) {
                 infoWindowClone.close();
+                infoWindowClone = undefined;
+                switchindicator = false;
                 populateInfoWindow(this, largeInfowindow);
                 z = largeInfowindow;
-                console.log(z);
               } else {
                 populateInfoWindow(this, largeInfowindow);
                 z = largeInfowindow;
-                console.log(z);
               }
             });
             // This creates the event listener whereby when the icon is clicked,
             // the icon will turn to yellow.
             marker.addListener('click', function() {
               this.setIcon(highlightedIcon);
-              populateInfoWindow(this, largeInfowindow);
             });
             // This creates the event listener whereby when the mouse moves out of
             // the icon, it will turn back to its original colour.
             marker.addListener('mouseout', function() {
               this.setIcon(defaultIcon);
+              largeInfowindow.close();
             });
           };
         };
         showListings();
-        console.log(markers());
         switchindicator = false;
       } catch(err) {
         window.alert("An error has occured. Please inform the owner of this website.");
@@ -187,28 +199,29 @@ var ViewModel = function(){
           markers.push(marker);
            // This creates the infowindow which information pertaining to the said
            // location were displayed.
-
           marker.addListener('click', function(){
+            if (xprevious != ""){
+              markers()[idPositionChecker()].setIcon(defaultIcon);
+            }
             if (infoWindowClone != undefined) {
               infoWindowClone.close();
+              infoWindowClone = undefined;
+              switchindicator = false;
               populateInfoWindow(this, largeInfowindow);
               z = largeInfowindow;
-              console.log(z);
             } else {
               populateInfoWindow(this, largeInfowindow);
               z = largeInfowindow;
-              console.log(z);
             }
           });
-
           marker.addListener('click', function() {
             this.setIcon(highlightedIcon);
-            populateInfoWindow(this, largeInfowindow);
           });
           // This creates the event listener whereby when the mouse moves out of
           // the icon, it will turn back to its original colour.
           marker.addListener('mouseout', function() {
             this.setIcon(defaultIcon);
+            largeInfowindow.close();
           });
         };
         showListings();
@@ -218,6 +231,7 @@ var ViewModel = function(){
       };
     };
 
+    // This function display all the markers (based on search criteria) on the map
     function showListings() {
       var bounds = new google.maps.LatLngBounds();
        // Extend the boundaries of the map for each marker and display the marker
@@ -230,8 +244,8 @@ var ViewModel = function(){
       var zoom = map.getZoom();
       map.setZoom(12);
     };
-    //This function allows all markers to be removed before the updated ones
-    // are
+
+    //This function allows all markers to be removed from map
     function hideMarkers(markers) {
       for (var i = 0; i < markers().length; i++) {
         markers()[i].setMap(null);
@@ -239,17 +253,7 @@ var ViewModel = function(){
       };
     };
 
-    function positionLocator(thing) {
-      /*var position = ""
-      for (var i = 0; i < markers().length; i++){
-        console.log(markers()[i]["id"]);
-        console.log(thing["anchor"]["id"]);
-        if (markers()[i]["id"] == thing["marker"]["icon"]["id"]) {
-          position = i;
-        }*/
-      return position;
-    }
-
+    //This function allows all markers to be removed from map
     function makeMarkerIcon(markerColor) {
       try {
         var markerImage = new google.maps.MarkerImage(
@@ -265,20 +269,9 @@ var ViewModel = function(){
       }
     };
 
-    function errorChecker() {
-      var container = []
-      for (var i = 0; i < markers().length; i++) {
-        container.push(markers()[i]["id"])
-      };
-      return container;
-    };
-
     function idPositionChecker(){
       for (var i = 0; i < markers().length; i++) {
         var x = markers()[i]["id"];
-        console.log("below here number 2")
-        console.log(x);
-        console.log(xprevious);
         if (xprevious === x) {
           var y = i;
           break;
@@ -337,7 +330,7 @@ var ViewModel = function(){
     };
 
     mapError = () => {
-      console.log("testing");
+      window.alert("Google MAP API Loading Error!");
     };
 };
 

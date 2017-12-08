@@ -8,30 +8,29 @@
     <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
   <body>
-    <body>
-      <div class="container">
-          <div class="options-box">
-            <h1 id=topheader>Singapore - My Country, Neighborhood and Home</h1>
-            <img src="http://www.changiairport.com/content/dam/cag/5-airport-experience/3-services-facilities/free_singapore_tour_900.jpg" alt="Smiley face" height="200" width="300">
-            <hr>
-              <span id="searchbox"> Find your favorite locations here</span>
-              <input type="text" id="filterbox" data-bind='value: filterBoxValue, valueUpdate: "afterkeydown"' /><br>
-              <button type="button" data-bind="click: update">Search</button>
-            <hr>
-            <ul id='locations-title-container' data-bind='foreach: markers()'>
-                <li>
-                  <span data-bind="text: $data.title, attr: {'id': 'marker' + $index()}"></span>
-                  <button data-bind="click: $root.highlightonmap">Highlight on Map</button>
-                </li>
-            </ul>
-          </div>
-        <div id="map"></div>
-      </div>
-      <script src="js/lib/knockout-3.2.0.js"></script>
-      <script src="js/lib/jquery.min.js"></script>
-      <script src="js/app.js"></script>
-      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAYaqzhSGF4Zff--iCm-M0zYwHiknNf5Ok&v=3&callback=viewModel.initMap"
-        async defer onerror="mapError()">
-      </script>
+    <div class="container">
+        <div class="options-box">
+          <h1 id=topheader>Singapore - My Country, Neighborhood and Home</h1>
+          <img src="http://www.changiairport.com/content/dam/cag/5-airport-experience/3-services-facilities/free_singapore_tour_900.jpg" alt="Smiley face" height="200" width="300">
+          <hr>
+            <span id="searchbox"> Find your favorite locations here</span>
+            <input type="text" id="filterbox" data-bind='value: filterBoxValue, valueUpdate: "afterkeydown"' /><br>
+            <button type="button" data-bind="click: update">Search</button>
+          <hr>
+          <ul id='locations-title-container' data-bind='foreach: markers()'>
+              <li>
+                <span data-bind="text: $data.title, attr: {'id': 'marker' + $index()}"></span>
+                <button data-bind="event: { mouseout: $root.mouseOutList }, click: $root.highlightonmap">Highlight on Map</button>
+              </li>
+          </ul>
+        </div>
+      <div id="map"></div>
+    </div>
+    <script src="js/lib/knockout-3.2.0.js"></script>
+    <script src="js/lib/jquery.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAYaqzhSGF4Zff--iCm-M0zYwHiknNf5Ok&v=3&callback=viewModel.initMap"
+      async defer onerror="mapError()">
+    </script>
   </body>
 </html>
