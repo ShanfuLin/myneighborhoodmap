@@ -14,7 +14,7 @@ var funLocations = [
   {name: "MacRitchie Reservoir", coordinates: {lat: 1.3448, lng: 103.8224}},
   {name: "Marina Bay Sands", coordinates: {lat: 1.2839, lng: 103.8609}},
   {name: "Punggol Park", coordinates: {lat: 1.3770, lng: 103.8985}},
-  {name: "Sentosa Island", coordinates: {lat: 1.2494, lng: 103.8303}},
+  {name: "Sentosa", coordinates: {lat: 1.2494, lng: 103.8303}},
   {name: "Sungei Buloh Wetland Reserve", coordinates: {lat: 1.4467, lng: 103.7301}}
 ];
 
@@ -34,7 +34,6 @@ var ViewModel = function(){
 
   filterBoxValue = ko.observable("");
   markers = ko.observableArray(markers);
-
   // This function calls the function to update the markers in accordance to
   // what the user had typed in the search box
   this.update = function () {
@@ -91,7 +90,6 @@ var ViewModel = function(){
         populateInfoWindow(marker, infoWindowClone);
         switchindicator = true;
         xprevious = marker["id"];
-        //positionLocator(infoWindowClone);
       }
     }
   };
@@ -144,7 +142,9 @@ var ViewModel = function(){
              // location were displayed.
             marker.addListener('click', function(){
               if (xprevious != ""){
-                markers()[idPositionChecker()].setIcon(defaultIcon);
+                if (idPositionChecker() != -1){
+                  markers()[idPositionChecker()].setIcon(defaultIcon);
+                }
               }
               if (infoWindowClone != undefined) {
                 infoWindowClone.close();
@@ -166,7 +166,6 @@ var ViewModel = function(){
             // the icon, it will turn back to its original colour.
             marker.addListener('mouseout', function() {
               this.setIcon(defaultIcon);
-              largeInfowindow.close();
             });
           };
         };
@@ -200,7 +199,7 @@ var ViewModel = function(){
            // This creates the infowindow which information pertaining to the said
            // location were displayed.
           marker.addListener('click', function(){
-            if (xprevious != ""){
+            if (idPositionChecker() != -1){
               markers()[idPositionChecker()].setIcon(defaultIcon);
             }
             if (infoWindowClone != undefined) {
@@ -221,7 +220,6 @@ var ViewModel = function(){
           // the icon, it will turn back to its original colour.
           marker.addListener('mouseout', function() {
             this.setIcon(defaultIcon);
-            largeInfowindow.close();
           });
         };
         showListings();
@@ -292,6 +290,7 @@ var ViewModel = function(){
             jsonp: "callback",
             success: function( response ) {
                 var articleList = response[3];
+                console.log(response[2]);
                 if (infowindow.marker != marker) {
                   // Clear the infowindow content to give the streetview time to load.
                   infowindow.setContent('');
@@ -300,7 +299,7 @@ var ViewModel = function(){
                   infowindow.addListener('closeclick', function() {
                     infowindow.marker = null;
                   });
-                  infowindow.setContent('<div>' + marker.title + '</div><br><div><a href='+ articleList[0] + '>' + "Click Here to Find out More!!!" + '</a></div>');
+                  infowindow.setContent('<div>' + marker.title + '</div><br><div><a href='+ articleList[0] + '>' + 'Click here to find out more' + '</a>' + '<br><br><span>' + response[2][0] + response[2][1] + '</span>' + '</div>');
                   infowindow.open(map, marker);
                 };
             },
